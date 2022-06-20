@@ -2,11 +2,13 @@ package controller;
 
 import model.Post;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import service.IPostService;
 import service.impl.PostService;
 
 import java.time.LocalDateTime;
@@ -18,9 +20,11 @@ public class PostController {
     PostService postService;
 
     @GetMapping
-    public ModelAndView show() {
+    public ModelAndView show(@PageableDefault(value = 5) Pageable pageable) {
+
+        Page<Post> posts =postService.findAll(pageable);
         ModelAndView modelAndView = new ModelAndView("/post/list");
-        modelAndView.addObject("posts", postService.findAll());
+        modelAndView.addObject("posts", posts);
         return modelAndView;
     }
     @GetMapping("/create")
@@ -52,9 +56,9 @@ public class PostController {
         return modelAndView;
     }
     @GetMapping("/search")
-    public ModelAndView find(@RequestParam String title){
+    public ModelAndView find(@RequestParam String title,@PageableDefault(value = 5) Pageable pageable){
         ModelAndView modelAndView = new ModelAndView("/post/search");
-        modelAndView.addObject("posts",postService.findByTitle(title));
+        modelAndView.addObject("posts",postService.findByTitle(title,pageable));
         return modelAndView;
     }
     @GetMapping("/findLike")
@@ -63,4 +67,5 @@ public class PostController {
         modelAndView.addObject("posts", postService.findByLikes());
         return modelAndView;
     }
+
 }
